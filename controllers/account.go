@@ -68,11 +68,16 @@ func (ctl *Account) Transfer(c *fiber.Ctx) error {
 
 	err = ctl.Service.Transfer(accountNumber, request.Receiver, request.Amount)
 	if err != nil {
+		code := http.StatusNotFound
+		if err.Error() == "insufficient balance" {
+			code = http.StatusBadRequest
+		}
+
 		c.JSON(map[string]string{
 			"message": err.Error(),
 		})
 
-		return c.SendStatus(http.StatusNotFound)
+		return c.SendStatus(code)
 	}
 
 	c.JSON("")

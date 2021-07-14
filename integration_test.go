@@ -185,6 +185,30 @@ func TestAccountTransferReciverNotFound(t *testing.T) {
 	utils.AssertEqual(t, http.StatusNotFound, response.StatusCode)
 }
 
+func TestAccountTransferInsufficientBalance(t *testing.T) {
+	setUp()
+
+	data := map[string]interface{}{
+		"to_account_number": 555002,
+		"amount":            10000000,
+	}
+
+	body, err := json.Marshal(data)
+
+	utils.AssertEqual(t, nil, err)
+
+	request, err := http.NewRequest(fiber.MethodPost, fmt.Sprintf("%s/account/555001/transfer", URL), bytes.NewReader(body))
+	request.Header.Add("content-type", "application/json")
+
+	utils.AssertEqual(t, nil, err)
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+
+	utils.AssertEqual(t, nil, err)
+	utils.AssertEqual(t, http.StatusBadRequest, response.StatusCode)
+}
+
 func TestAccountTransferSuccess(t *testing.T) {
 	setUp()
 
