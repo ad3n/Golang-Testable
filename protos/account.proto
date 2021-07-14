@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = ".;protos";
+
+message BalanceResponse {
+    int32 account_number = 1;
+    string customer_name = 2;
+    float balance = 3;
+}
+
+message BalanceRequest {
+    int32 account_number = 1;
+}
+
+service Account {
+   rpc Balance(BalanceRequest) returns (BalanceResponse) {}
+}
