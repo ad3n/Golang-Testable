@@ -12,11 +12,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAccountBalanceAccountNotFound(t *testing.T) {
-	accountRepository := mocks.AccountRepository{}
-	accountRepository.On("Find", 123).Return(&models.Account{}, errors.New("account not found")).Once()
+var accountRepository mocks.AccountRepository
+var customerRepository mocks.CustomerRepository
 
-	customerRepository := mocks.CustomerRepository{}
+func setUp() {
+	accountRepository = mocks.AccountRepository{}
+	customerRepository = mocks.CustomerRepository{}
+}
+
+func TestAccountBalanceAccountNotFound(t *testing.T) {
+	setUp()
+
+	accountRepository.On("Find", 123).Return(&models.Account{}, errors.New("account not found")).Once()
 
 	accountService := services.Account{Repository: &accountRepository, Customer: &customerRepository}
 
@@ -31,15 +38,14 @@ func TestAccountBalanceAccountNotFound(t *testing.T) {
 }
 
 func TestAccountBalanceCustomerNotFound(t *testing.T) {
+	setUp()
+
 	account := models.Account{}
 	account.ID = 123
 	account.CustomerID = 321
 	account.Balance = 10000
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", account.ID).Return(&account, nil).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 	customerRepository.On("Find", account.CustomerID).Return(&models.Customer{}, errors.New("customer not found")).Once()
 
 	accountService := services.Account{Repository: &accountRepository, Customer: &customerRepository}
@@ -55,6 +61,8 @@ func TestAccountBalanceCustomerNotFound(t *testing.T) {
 }
 
 func TestAccountBalanceSuccess(t *testing.T) {
+	setUp()
+
 	account := models.Account{}
 	account.ID = 123
 	account.CustomerID = 321
@@ -64,10 +72,7 @@ func TestAccountBalanceSuccess(t *testing.T) {
 	customer.ID = account.CustomerID
 	customer.Name = "John Doe"
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", account.ID).Return(&account, nil).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 	customerRepository.On("Find", account.CustomerID).Return(&customer, nil).Once()
 
 	accountService := services.Account{Repository: &accountRepository, Customer: &customerRepository}

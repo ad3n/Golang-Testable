@@ -11,11 +11,18 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestAccountBalanceAccountNotFound(t *testing.T) {
-	accountRepository := mocks.AccountRepository{}
-	accountRepository.On("Find", 123).Return(&models.Account{}, errors.New("account not found")).Once()
+var accountRepository mocks.AccountRepository
+var customerRepository mocks.CustomerRepository
 
-	customerRepository := mocks.CustomerRepository{}
+func setUp() {
+	accountRepository = mocks.AccountRepository{}
+	customerRepository = mocks.CustomerRepository{}
+}
+
+func TestAccountBalanceAccountNotFound(t *testing.T) {
+	setUp()
+
+	accountRepository.On("Find", 123).Return(&models.Account{}, errors.New("account not found")).Once()
 
 	service := Account{Repository: &accountRepository, Customer: &customerRepository}
 
@@ -31,15 +38,14 @@ func TestAccountBalanceAccountNotFound(t *testing.T) {
 }
 
 func TestAccountBalanceCustomerNotFound(t *testing.T) {
+	setUp()
+
 	account := models.Account{}
 	account.ID = 123
 	account.CustomerID = 321
 	account.Balance = 10000
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", account.ID).Return(&account, nil).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 	customerRepository.On("Find", account.CustomerID).Return(&models.Customer{}, errors.New("customer not found")).Once()
 
 	service := Account{Repository: &accountRepository, Customer: &customerRepository}
@@ -56,6 +62,8 @@ func TestAccountBalanceCustomerNotFound(t *testing.T) {
 }
 
 func TestAccountBalanceSuccess(t *testing.T) {
+	setUp()
+
 	account := models.Account{}
 	account.ID = 123
 	account.CustomerID = 321
@@ -65,10 +73,7 @@ func TestAccountBalanceSuccess(t *testing.T) {
 	customer.ID = account.CustomerID
 	customer.Name = "John Doe"
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", account.ID).Return(&account, nil).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 	customerRepository.On("Find", account.CustomerID).Return(&customer, nil).Once()
 
 	service := Account{Repository: &accountRepository, Customer: &customerRepository}
@@ -85,13 +90,12 @@ func TestAccountBalanceSuccess(t *testing.T) {
 }
 
 func TestAccountTransferSenderAccountNotFound(t *testing.T) {
+	setUp()
+
 	from := 123
 	to := 321
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", from).Return(&models.Account{}, errors.New("account not found")).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 
 	service := Account{Repository: &accountRepository, Customer: &customerRepository}
 
@@ -104,13 +108,12 @@ func TestAccountTransferSenderAccountNotFound(t *testing.T) {
 }
 
 func TestAccountTransferInsufficientBalance(t *testing.T) {
+	setUp()
+
 	from := 123
 	to := 321
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", from).Return(&models.Account{}, nil).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 
 	service := Account{Repository: &accountRepository, Customer: &customerRepository}
 
@@ -123,19 +126,18 @@ func TestAccountTransferInsufficientBalance(t *testing.T) {
 }
 
 func TestAccountTransferReceiverNotFound(t *testing.T) {
+	setUp()
+
 	sender := models.Account{}
 	sender.ID = 123
 	sender.Balance = 100000.0
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", mock.MatchedBy(func(accountNumber int) bool {
 		return accountNumber == sender.ID
 	})).Return(&sender, nil).Once()
 	accountRepository.On("Find", mock.MatchedBy(func(accountNumber int) bool {
 		return accountNumber == 321
 	})).Return(&models.Account{}, errors.New("account not found")).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 
 	service := Account{Repository: &accountRepository, Customer: &customerRepository}
 
@@ -148,6 +150,8 @@ func TestAccountTransferReceiverNotFound(t *testing.T) {
 }
 
 func TestAccountTransferBalanceEqualTransferAmount(t *testing.T) {
+	setUp()
+
 	sender := models.Account{}
 	sender.ID = 123
 	sender.Balance = 100000.0
@@ -155,7 +159,6 @@ func TestAccountTransferBalanceEqualTransferAmount(t *testing.T) {
 	receiver := models.Account{}
 	receiver.ID = 321
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", mock.MatchedBy(func(accountNumber int) bool {
 		return accountNumber == sender.ID
 	})).Return(&sender, nil).Once()
@@ -164,8 +167,6 @@ func TestAccountTransferBalanceEqualTransferAmount(t *testing.T) {
 	})).Return(&receiver, nil).Once()
 
 	accountRepository.On("Saves", mock.Anything, mock.Anything).Return(nil).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 
 	service := Account{Repository: &accountRepository, Customer: &customerRepository}
 
@@ -186,7 +187,6 @@ func TestAccountTransferBalanceMoreThanTransferAmount(t *testing.T) {
 	receiver := models.Account{}
 	receiver.ID = 321
 
-	accountRepository := mocks.AccountRepository{}
 	accountRepository.On("Find", mock.MatchedBy(func(accountNumber int) bool {
 		return accountNumber == sender.ID
 	})).Return(&sender, nil).Once()
@@ -194,8 +194,6 @@ func TestAccountTransferBalanceMoreThanTransferAmount(t *testing.T) {
 		return accountNumber == receiver.ID
 	})).Return(&receiver, nil).Once()
 	accountRepository.On("Saves", mock.Anything, mock.Anything).Return(nil).Once()
-
-	customerRepository := mocks.CustomerRepository{}
 
 	service := Account{Repository: &accountRepository, Customer: &customerRepository}
 
