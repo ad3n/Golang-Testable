@@ -30,7 +30,7 @@ func main() {
 
 	(routes.Account{}).RegisterRoute(app)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", configs.Env.GRpcPort))
+	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", configs.Env.GRpcPort))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -40,7 +40,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 	protos.RegisterAccountServer(grpcServer, &account)
 
-	go grpcServer.Serve(lis)
+	go grpcServer.Serve(listen)
 
 	app.Listen(fmt.Sprintf(":%d", configs.Env.AppPort))
 }
