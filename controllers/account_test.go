@@ -38,10 +38,10 @@ func TestAccountBalanceAccountNotNumber(t *testing.T) {
 
 	app.Get("/account/:number", controller.Balance)
 
-	resp, err := app.Test(httptest.NewRequest(fiber.MethodGet, "/account/abc", nil))
+	response, err := app.Test(httptest.NewRequest(fiber.MethodGet, "/account/abc", nil))
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusBadRequest, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusBadRequest, response.StatusCode)
 }
 
 func TestAccountBalanceAccountNotFound(t *testing.T) {
@@ -57,11 +57,11 @@ func TestAccountBalanceAccountNotFound(t *testing.T) {
 
 	app.Get("/account/:number", controller.Balance)
 
-	resp, err := app.Test(httptest.NewRequest(fiber.MethodGet, "/account/123", nil))
+	response, err := app.Test(httptest.NewRequest(fiber.MethodGet, "/account/123", nil))
 
 	utils.AssertEqual(t, nil, err)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(response.Body)
 
 	utils.AssertEqual(t, nil, err)
 
@@ -69,7 +69,7 @@ func TestAccountBalanceAccountNotFound(t *testing.T) {
 	err = json.Unmarshal(body, &views)
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusNotFound, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusNotFound, response.StatusCode)
 	utils.AssertEqual(t, "account not found", views["message"])
 }
 
@@ -92,11 +92,11 @@ func TestAccountBalanceCustomerNotFound(t *testing.T) {
 
 	app.Get("/account/:number", controller.Balance)
 
-	resp, err := app.Test(httptest.NewRequest(fiber.MethodGet, "/account/123", nil))
+	response, err := app.Test(httptest.NewRequest(fiber.MethodGet, "/account/123", nil))
 
 	utils.AssertEqual(t, nil, err)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(response.Body)
 
 	utils.AssertEqual(t, nil, err)
 
@@ -104,7 +104,7 @@ func TestAccountBalanceCustomerNotFound(t *testing.T) {
 	err = json.Unmarshal(body, &views)
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusNotFound, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusNotFound, response.StatusCode)
 	utils.AssertEqual(t, "customer not found", views["message"])
 }
 
@@ -131,11 +131,11 @@ func TestAccountBalanceSuccess(t *testing.T) {
 
 	app.Get("/account/:number", controller.Balance)
 
-	resp, err := app.Test(httptest.NewRequest(fiber.MethodGet, "/account/123", nil))
+	response, err := app.Test(httptest.NewRequest(fiber.MethodGet, "/account/123", nil))
 
 	utils.AssertEqual(t, nil, err)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(response.Body)
 
 	utils.AssertEqual(t, nil, err)
 
@@ -143,7 +143,7 @@ func TestAccountBalanceSuccess(t *testing.T) {
 	err = json.Unmarshal(body, &views)
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusOK, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusOK, response.StatusCode)
 	utils.AssertEqual(t, account.ID, views.AccountNumber)
 }
 
@@ -158,10 +158,10 @@ func TestAccountTransferAccountNotNumber(t *testing.T) {
 
 	app.Post("/account/:number/transfer", controller.Transfer)
 
-	resp, err := app.Test(httptest.NewRequest(fiber.MethodPost, "/account/abc/transfer", nil))
+	response, err := app.Test(httptest.NewRequest(fiber.MethodPost, "/account/abc/transfer", nil))
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusBadRequest, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusBadRequest, response.StatusCode)
 }
 
 func TestAccountTransferNotValidPayload(t *testing.T) {
@@ -185,10 +185,10 @@ func TestAccountTransferNotValidPayload(t *testing.T) {
 
 	req := httptest.NewRequest(fiber.MethodPost, "/account/123/transfer", bytes.NewReader(body))
 	req.Header.Add("content-type", "application/json")
-	resp, err := app.Test(req)
+	response, err := app.Test(req)
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusBadRequest, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusBadRequest, response.StatusCode)
 }
 
 func TestAccountTransferZeroAmount(t *testing.T) {
@@ -213,10 +213,10 @@ func TestAccountTransferZeroAmount(t *testing.T) {
 
 	req := httptest.NewRequest(fiber.MethodPost, "/account/123/transfer", bytes.NewReader(body))
 	req.Header.Add("content-type", "application/json")
-	resp, err := app.Test(req)
+	response, err := app.Test(req)
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusBadRequest, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusBadRequest, response.StatusCode)
 }
 
 func TestAccountTransferReciverNotFound(t *testing.T) {
@@ -255,10 +255,10 @@ func TestAccountTransferReciverNotFound(t *testing.T) {
 
 	req := httptest.NewRequest(fiber.MethodPost, "/account/123/transfer", bytes.NewReader(body))
 	req.Header.Add("content-type", "application/json")
-	resp, err := app.Test(req)
+	response, err := app.Test(req)
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusNotFound, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusNotFound, response.StatusCode)
 }
 
 func TestAccountTransferSuccess(t *testing.T) {
@@ -298,8 +298,8 @@ func TestAccountTransferSuccess(t *testing.T) {
 
 	req := httptest.NewRequest(fiber.MethodPost, "/account/123/transfer", bytes.NewReader(body))
 	req.Header.Add("content-type", "application/json")
-	resp, err := app.Test(req)
+	response, err := app.Test(req)
 
 	utils.AssertEqual(t, nil, err)
-	utils.AssertEqual(t, http.StatusCreated, resp.StatusCode)
+	utils.AssertEqual(t, http.StatusCreated, response.StatusCode)
 }

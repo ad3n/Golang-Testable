@@ -20,7 +20,6 @@ type env struct {
 	DbHost     string
 	DbPort     int
 	AppPort    int
-	GRpcPort   int
 	Debug      bool
 }
 
@@ -32,7 +31,6 @@ func Load() {
 	Env.DbHost = os.Getenv("DB_HOST")
 	Env.DbPort, _ = strconv.Atoi(os.Getenv("DB_PORT"))
 	Env.AppPort, _ = strconv.Atoi(os.Getenv("APP_PORT"))
-	Env.GRpcPort, _ = strconv.Atoi(os.Getenv("GRPC_PORT"))
 
 	var err error
 
