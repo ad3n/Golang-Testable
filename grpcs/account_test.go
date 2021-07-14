@@ -75,7 +75,7 @@ func TestAccountBalanceSuccess(t *testing.T) {
 	rpc := Account{Service: &accountService}
 
 	request := protos.BalanceRequest{}
-	request.AccountNumber = 555001
+	request.AccountNumber = int32(account.ID)
 
 	response, err := rpc.Balance(context.Background(), &request)
 

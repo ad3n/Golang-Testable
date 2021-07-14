@@ -181,7 +181,7 @@ func TestAccountTransferNotValidPayload(t *testing.T) {
 
 	utils.AssertEqual(t, nil, err)
 
-	req := httptest.NewRequest(fiber.MethodPost, "/account/555001/transfer", bytes.NewReader(body))
+	req := httptest.NewRequest(fiber.MethodPost, "/account/123/transfer", bytes.NewReader(body))
 	req.Header.Add("content-type", "application/json")
 	resp, err := app.Test(req)
 
@@ -202,7 +202,7 @@ func TestAccountTransferZeroAmount(t *testing.T) {
 	app.Post("/account/:number/transfer", controller.Transfer)
 
 	data := map[string]interface{}{
-		"to_account_number": 123,
+		"to_account_number": 321,
 		"amount":            0,
 	}
 
@@ -210,7 +210,7 @@ func TestAccountTransferZeroAmount(t *testing.T) {
 
 	utils.AssertEqual(t, nil, err)
 
-	req := httptest.NewRequest(fiber.MethodPost, "/account/555001/transfer", bytes.NewReader(body))
+	req := httptest.NewRequest(fiber.MethodPost, "/account/123/transfer", bytes.NewReader(body))
 	req.Header.Add("content-type", "application/json")
 	resp, err := app.Test(req)
 
